@@ -1,5 +1,6 @@
 class BlackJack
-def random_card
+
+def random_card #method to return a random card
   cards = [
     "Two",
     "Three",
@@ -15,12 +16,12 @@ def random_card
     "King",
     "Ace"
   ]
-  cards[rand(13)]
+  cards[rand(13)] 
 end
 
-def total(hand)
+def total(hand)  # method to calc current hand total
   hand_total = 0
-  cards = {
+  cards = { # hash of all values
     "Two" => 2,
     "Three" => 3,
     "Four" => 4,
@@ -33,25 +34,31 @@ def total(hand)
     "Jack" => 10,
     "Queen" => 10,
     "King" => 10,
-    "Ace" => 11
+    "Ace" => 1
   }
   hand.each{ |card|
-  hand_total += cards[card]
+  hand_total += cards[card] # adds value of each card to total
   }
-  hand_total
+  hand_total # return total
 end
 
-def move(current_hand)
+def move(current_hand) # interative part of the game
   hand = current_hand
   puts "Hit or Stick?"
-  loop do
+  loop do # loop to ensure value is hit or stick
     input = gets.chomp
     if input.downcase == "hit"
-      hand.push(random_card)
+      new_card = random_card
+      hand.push(new_card)
+      puts "You got a #{new_card}"
       running_total = total(hand)
       break if running_total > 21
-      puts "You have #{running_total}"
-      puts "Hit or Stick?"
+      if hand.include?("Ace") && (running_total + 10) < 21
+        puts "You have #{running_total} or #{running_total + 10}"
+      else      
+        puts "You have #{running_total}"
+        puts "Hit or Stick?"
+      end
     elsif input.downcase == "stick"
       break
     else
@@ -79,10 +86,18 @@ def dealer(dealers_hand)
   dealer_running_total = total(dealers_hand)
   puts "Dealer has a #{dealers_final_hand[0]} & a #{dealers_final_hand[1]}"
   while dealer_running_total < 18 do
-    dealers_final_hand.push(random_card)
-    puts "Dealer got a #{dealers_final_hand.last}"
-    dealer_running_total = total(dealers_final_hand)
-    puts "Dealer is on #{dealer_running_total}"
+    if dealers_final_hand.include?("Ace") && (dealer_running_total + 10).between?(18, 21)
+      break
+    else  
+      dealers_final_hand.push(random_card)
+      puts "Dealer got a #{dealers_final_hand.last}"
+      dealer_running_total = total(dealers_final_hand)
+      if dealers_final_hand.include?("Ace") && (dealer_running_total + 10) < 18
+        puts "Dealer is on #{dealer_running_total} or #{dealer_running_total + 10}" 
+      else 
+        puts "Dealer is on #{dealer_running_total}"
+      end
+    end
   end
   dealer_total = total(dealers_final_hand)
 end
@@ -96,12 +111,14 @@ def run_game
   player_hand.push(random_card) while player_hand.length < 2
   puts "You're dealt a #{player_hand[0]} and a #{player_hand[1]}"
   starting_total = total(player_hand)
-  puts "You have #{starting_total}"
+  puts "You have #{starting_total}" if player_hand.include?("Ace") == false
+  puts "You have #{starting_total} or #{starting_total + 10}" if player_hand.include?("Ace")
   dealer_hand.push(random_card) while dealer_hand.length < 2
   puts "Dealer has a #{dealer_hand[0]} and another card"
   
   player_hand = move(player_hand)
   player_total = total(player_hand)
+  player_total += 10 if player_hand.include?("Ace") && player_total + 10 < 22
   
   puts "You are bust with #{player_total}" if player_total > 21  
  
