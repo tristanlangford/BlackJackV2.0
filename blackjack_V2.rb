@@ -75,12 +75,16 @@ def final(player_total, dealer_total) # method to deal with end game. take in ha
   puts "Player has #{player_total}, dealer has #{dealer_total}" # tell the user what each player has
   if player_total > dealer_total && dealer_total < 21 # player more than dealer
     puts "Player wins!"
+    return 2
   elsif dealer_total > 21 # dealer bust
     puts "Dealer bust. Player wins!"
+    return 2
   elsif dealer_total > player_total # dealer more than player
     puts "Dealer wins"
+    return 0
   else
     puts "Draw"
+    return 1
   end
 end
 
@@ -102,6 +106,25 @@ def dealer # method for dealers turn
   end
 end
 
+def settle_bet(bet, multiplier)
+  @money += (bet * multiplier) 
+  puts "You now have #{@money}"
+end
+
+def starting_bet
+  puts "You have £#{@money}"
+  puts "How much to do you want to bet?"
+  bet = STDIN.gets.chomp.to_i
+  if @money - bet < 0
+    puts "Not enough money" if @money - bet < 0
+    bet = STDIN.gets.input
+  else
+    @money = @money - bet
+    puts "Your bet of #{bet} is accepted"
+  end
+  bet
+end
+
 def starting_hands
   @player_hand.push(random_card) until @player_hand.length == 2 # deal first 2 player cards
   puts "You're dealt a #{@player_hand[0]} and a #{@player_hand[1]}" # reveal first 2 cards
@@ -115,6 +138,8 @@ end
 def run_game # method to run game
   puts "Welcome to BlackJack" # intro
   
+  bet = starting_bet
+
   @player_hand = [] # array for starting cards
   @dealer_hand = []
   
@@ -126,11 +151,12 @@ def run_game # method to run game
   
   if player_final_total > 21  # check for player bust
     puts "You are bust with #{player_final_total}"
+    puts "You now have #{@money}"
   else
     dealer
     dealer_final_total = total(@dealer_hand)
     dealer_final_total += 10 if @dealer_hand.include?("Ace") && dealer_final_total + 10 < 22 # Ace Check
-    final(player_final_total, dealer_final_total) if player_final_total < 22 # run end game
+    settle_bet(bet, final(player_final_total, dealer_final_total)) if player_final_total < 22 # run end game
   end
   
   play_again
@@ -142,6 +168,7 @@ def play_again
   loop do 
     if input.upcase == "Y"
       run_game
+      break
     elsif input.upcase == "N"
       break
     else
@@ -159,6 +186,7 @@ def start_menu_options
 end
 
 def start_menu_action
+  @money = 500
   input = STDIN.gets.chomp
   case input
     when "1"
