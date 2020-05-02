@@ -162,7 +162,7 @@ def run_game # method to run game
     settle_bet(bet, final(player_final_total, dealer_final_total)) if player_final_total < 22 # run end game
   end
   
-  play_again
+  play_again  unless @money == 0 
 end
 
 def play_again
@@ -182,7 +182,7 @@ def play_again
 end
 
 def start_menu_options
-  puts "1. New Game"
+  puts "1. Play"
   puts "2. Load Game"
   puts "3. Save Game"
   puts "9. Exit"
@@ -202,11 +202,35 @@ def start_menu_action
   end
 end
 
+def bust_scenario
+  puts "1. New Game"
+  puts "2. Load Game"
+  puts "9. Exit"
+end
+
+def bust_actions
+  input = STDIN.gets.chomp
+  case input
+    when "1"
+      @money = 500
+    when "2"
+      load_game
+    when "9"
+      exit
+  end
+end
+
 def play
   @money = 500
   loop do
     start_menu_options
     start_menu_action
+    if @money == 0
+      puts "You're completley BUST!"
+      bust_scenario
+      bust_actions
+    else
+    end
   end
 end
 
