@@ -55,14 +55,14 @@ def move # interative part of the game
     if input.downcase == "hit" # check for hit in any format
       @player_hand.push(random_card)
       puts "You got a #{@player_hand.last}" # notify user of their new card
-      running_total = total(@player_hand) # get new total of hand
-      break if running_total > 21 # check to see if bust
-      if @player_hand.include?("Ace") && (running_total + 10) < 21 # Ace check
-        puts "You have #{running_total} or #{running_total + 10}"
+      break if total(@player_hand) > 21 # check to see if bust
+      if @player_hand.include?("Ace") && (total(@player_hand) + 10) < 21 # Ace check
+        puts "You have #{total(@player_hand)} or #{total(@player_hand) + 10}"
       else      
-        puts "You have #{running_total}"
-        puts "Hit or Stick?"
+        puts "You have #{total(@player_hand)}"
       end
+    puts "----------"
+    puts "Hit or Stick?"
     elsif input.downcase == "stick" # check for stick in any format
       break
     else
@@ -86,10 +86,12 @@ def final(player_total, dealer_total) # method to deal with end game. take in ha
     puts "Draw"
     return 1
   end
+  puts "----------"
 end
 
 def dealer # method for dealers turn
   puts "Dealer has a #{@dealer_hand[0]} & a #{@dealer_hand[1]}" # reveal dealer cards
+  puts "----------"
   while total(@dealer_hand) < 18 do # if over 17, dealer will stick
     break if total(@dealer_hand) > total(@player_hand)
     if @dealer_hand.include?("Ace") && (total(@dealer_hand) + 10).between?(18, 21) # Ace Check
@@ -103,6 +105,7 @@ def dealer # method for dealers turn
         puts "Dealer is on #{total(@dealer_hand)}"
       end
     end
+  puts "----------"
   end
 end
 
@@ -186,27 +189,99 @@ def start_menu_options
 end
 
 def start_menu_action
-  @money = 500
   input = STDIN.gets.chomp
   case input
     when "1"
       run_game
     when "2"
-      puts "Feature coming soon!"
+      load_game
     when "3"
-      puts "Feature coming soon!"
+      save_game
     when "9"
-      exit
+      exit if are_you_sure == "Y"
   end
 end
 
 def play
+  @money = 500
   loop do
     start_menu_options
     start_menu_action
   end
 end
 
+def are_you_sure
+  puts "Are you sure? Any unsaved data will be lost (Y/N)"
+  input = STDIN.gets.chomp
+  if input.upcase == "Y"
+    return "Y"
+  else
+    return "N"
+  end
+end
+
+def trim_name
+  STDIN.gets.chomp.downcase.split(" ").join("")
+end
+
+def save_game
+  puts "Are you a new player? (Y/N)"
+  input = STDIN.gets.chomp
+  loop do
+    if input.upcase == "Y"
+      new_save
+      break
+    elsif input.upcase == "N"
+      save_existing_game
+      break
+    else
+      puts "Enter Y or N"
+      input = STDIN.gets.chomp
+    end
+  end
+end
+
+def new_save
+  puts "Enter players name"
+  name = trim_name
+  file = File.new("#{name}.csv", "w")
+  file.puts @money
+  file.close
+  puts "Saved!"
+end
+
+def save_existing_game
+  puts "Enter players name"
+  name = trim_name
+  if File.exists?("#{name}.csv") 
+    puts "Are you sure you want to overwrite save data? (Y/N)"
+    if STDIN.gets.chomp.upcase == "Y"
+      file = File.open("#{name}.csv", "w")
+      file.puts @money
+      file.close
+      puts "Saved!"
+    else
+    end
+  elsif File.exists?("#{name}.csv") == false
+    puts "Player file not located"
+  else
+  end
+end
+
+def load_game
+  if are_you_sure == "Y"
+    puts "Enter your name"
+    name = trim_name
+    file = File.open("#{name}.csv", "r")
+    file.readlines.each { |lines| 
+      money = lines.chomp
+      @money = money
+    }
+    file.close
+    puts "#{name} save loaded"
+  else
+  end
+end
 end
         
 BlackJack.new.play # run class & game
