@@ -225,7 +225,7 @@ def trim_name
 end
 
 def save_game
-  puts "Are you a new player? (Y/N)"
+  puts "Do you want to create a new save? (Y/N)"
   input = STDIN.gets.chomp
   loop do
     if input.upcase == "Y"
@@ -254,7 +254,7 @@ def save_existing_game
   puts "Enter players name"
   name = trim_name
   if File.exists?("#{name}.csv") 
-    puts "Are you sure you want to overwrite save data? (Y/N)"
+    puts "Are you sure you want to overwrite save? (Y/N)"
     if STDIN.gets.chomp.upcase == "Y"
       file = File.open("#{name}.csv", "w")
       file.puts @money
@@ -272,16 +272,22 @@ def load_game
   if are_you_sure == "Y"
     puts "Enter your name"
     name = trim_name
-    file = File.open("#{name}.csv", "r")
-    file.readlines.each { |lines| 
-      money = lines.chomp
-      @money = money
-    }
-    file.close
-    puts "#{name} save loaded"
-  else
+    if File.exists?("#{name}.csv")
+      file = File.open("#{name}.csv", "r")
+      file.readlines.each { |lines| 
+        money = lines.chomp
+        @money = money.to_i
+      }
+      file.close
+      puts "#{name} save loaded"
+      puts "----------"
+      puts "You have £#{@money}"
+      puts "----------"
+    else
+      puts "Save does not exist"
+    end
   end
 end
-end
-        
+       
+end 
 BlackJack.new.play # run class & game
