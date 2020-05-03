@@ -3,4 +3,4 @@
 This script plays a game of BlackJack. Betting and load/save enabled.
 
 # How to use
-``shell ruby directory.rb
+``shell ruby blackJackV2.rb
