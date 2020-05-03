@@ -163,7 +163,7 @@ class BlackJack
     puts "How much to do you want to bet?"
     bet = STDIN.gets.chomp.to_i
     if @money - bet < 0
-      puts "Not enough money" if @money - bet < 0
+      puts "Not enough money"
       bet = STDIN.gets.input
     elsif
       bet < 2
