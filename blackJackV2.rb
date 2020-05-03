@@ -4,6 +4,10 @@ class BlackJack
     STDIN.gets.chomp.downcase.split(" ").join("")
   end
 
+  def line_space
+    puts "----------"
+  end
+
   def are_you_sure
     puts "Are you sure? Any unsaved data will be lost (Y/N)"
     input = STDIN.gets.chomp
@@ -13,6 +17,7 @@ class BlackJack
       return "N"
     end
   end
+
 #start menu & Save/Load
   def start_menu_options
     puts "1. Play"
@@ -61,6 +66,7 @@ class BlackJack
     file.puts @money
     file.close
     puts "Saved!"
+    line_space
   end
 
   def save_existing_game
@@ -73,10 +79,12 @@ class BlackJack
         file.puts @money
         file.close
         puts "Saved!"
+        line_space
       else
       end
     elsif File.exists?("#{name}.csv") == false
       puts "Player file not located"
+      line_space
     else
     end
   end
@@ -95,9 +103,9 @@ class BlackJack
         }
         file.close
         puts "#{name} save loaded"
-        puts "----------"
+        line_space
         puts "You have £#{@money}"
-        puts "----------"
+        line_space
       else
         puts "Save does not exist"
       end
@@ -157,9 +165,14 @@ class BlackJack
     if @money - bet < 0
       puts "Not enough money" if @money - bet < 0
       bet = STDIN.gets.input
+    elsif
+      bet < 2
+      puts "Minimum bet is £2"
+      bet STDIN.gets.input
     else
       @money -= bet
       puts "Your bet of #{bet} is accepted"
+      line_space
     end
     bet
   end
@@ -167,6 +180,7 @@ class BlackJack
   def settle_bet(bet, multiplier)
     @money += (bet * multiplier)
     puts "You now have #{@money}"
+    line_space
   end
 
 # Game flow
@@ -177,12 +191,16 @@ class BlackJack
     puts "You have #{total(@player_hand)}" if @player_hand.include?("Ace") == false # Ace Check
     puts "You have #{total(@player_hand)} or #{total(@player_hand) + 10}" if @player_hand.include?("Ace")
     @dealer_hand.push(random_card) until @dealer_hand.length == 2 # deal first 2 dealer cards
+    line_space
     puts "Dealer has a #{@dealer_hand[0]} and another card" # reveal 1 dealer card
+    line_space
   end
 
   def move # interative part of the game
-    puts "Hit or Stick?"
     loop do # loop to ensure value is hit or stick
+      break if total(@player_hand) == 21
+      break if @player_hand.include?("Ace") && (total(@player_hand) + 10) == 21
+      puts "Hit or Stick?"
       input = gets.chomp # capture hit or stick
       if input.downcase == "hit" # check for hit in any format
         @player_hand.push(random_card)
@@ -193,8 +211,7 @@ class BlackJack
         else
           puts "You have #{total(@player_hand)}"
         end
-      puts "----------"
-      puts "Hit or Stick?"
+      line_space
       elsif input.downcase == "stick" # check for stick in any format
         break
       else
@@ -205,7 +222,7 @@ class BlackJack
 
   def dealer # method for dealers turn
     puts "Dealer has a #{@dealer_hand[0]} & a #{@dealer_hand[1]}" # reveal dealer cards
-    puts "----------"
+    line_space
     while total(@dealer_hand) < 18 do # if over 17, dealer will stick
       break if total(@dealer_hand) > total(@player_hand)
       if @dealer_hand.include?("Ace") && (total(@dealer_hand) + 10).between?(18, 21) # Ace Check
@@ -219,7 +236,7 @@ class BlackJack
           puts "Dealer is on #{total(@dealer_hand)}"
         end
       end
-      puts "----------"
+      line_space
     end
   end
 
@@ -238,7 +255,13 @@ class BlackJack
       puts "Draw"
       return 1
     end
-    puts "----------"
+    line_space
+  end
+
+  def end_game(bet, player_final_total)
+    dealer_final_total = total(@dealer_hand)
+    dealer_final_total += 10 if @dealer_hand.include?("Ace") && dealer_final_total + 10 < 22 # Ace Check
+    settle_bet(bet, final(player_final_total, dealer_final_total))
   end
 
   def play_again
@@ -258,8 +281,7 @@ class BlackJack
   end
 
   def run_game # method to run game
-    puts "Welcome to BlackJack" # intro
-
+  
     bet = starting_bet
 
     @player_hand = [] # array for starting cards
@@ -274,11 +296,12 @@ class BlackJack
     if player_final_total > 21  # check for player bust
       puts "You are bust with #{player_final_total}"
       puts "You now have #{@money}"
+      line_space
+    elsif player_final_total == 21 && @player_hand.length == 2
+      end_game(bet, player_final_total)
     else
       dealer
-      dealer_final_total = total(@dealer_hand)
-      dealer_final_total += 10 if @dealer_hand.include?("Ace") && dealer_final_total + 10 < 22 # Ace Check
-      settle_bet(bet, final(player_final_total, dealer_final_total)) if player_final_total < 22 # run end game
+      end_game(bet, player_final_total)
     end
 
     play_again  unless @money == 0
@@ -307,6 +330,7 @@ class BlackJack
  # Method for launching game
 
  def launch
+   puts "Welcome to BalckJack V2!"
    @money = 500
    loop do
      start_menu_options
