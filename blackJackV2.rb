@@ -7,6 +7,11 @@ class BlackJack
   def line_space
     puts "----------"
   end
+  
+  def ace_check
+    puts "You have #{total(@player_hand)}" if @player_hand.include?("Ace") == false # Ace Check
+    puts "You have #{total(@player_hand)} or #{total(@player_hand) + 10}" if @player_hand.include?("Ace") && total(@player_hand) + 10 < 22
+  end
 
   def are_you_sure
     puts "Are you sure? Any unsaved data will be lost (Y/N)"
@@ -188,8 +193,8 @@ class BlackJack
   def starting_hands
     @player_hand.push(random_card) until @player_hand.length == 2 # deal first 2 player cards
     puts "You're dealt a #{@player_hand[0]} and a #{@player_hand[1]}" # reveal first 2 cards
-    puts "You have #{total(@player_hand)}" if @player_hand.include?("Ace") == false # Ace Check
-    puts "You have #{total(@player_hand)} or #{total(@player_hand) + 10}" if @player_hand.include?("Ace")
+    ace_check
+    
     @dealer_hand.push(random_card) until @dealer_hand.length == 2 # deal first 2 dealer cards
     line_space
     puts "Dealer has a #{@dealer_hand[0]} and another card" # reveal 1 dealer card
@@ -206,8 +211,7 @@ class BlackJack
         @player_hand.push(random_card)
         puts "You got a #{@player_hand.last}" # notify user of their new card
         break if total(@player_hand) > 21 # check to see if bust
-        if @player_hand.include?("Ace") && (total(@player_hand) + 10) < 21 # Ace check
-          puts "You have #{total(@player_hand)} or #{total(@player_hand) + 10}"
+        ace_check
         else
           puts "You have #{total(@player_hand)}"
         end
@@ -225,21 +229,18 @@ class BlackJack
     line_space
     while total(@dealer_hand) < 18 do # if over 17, dealer will stick
       break if total(@dealer_hand) > total(@player_hand)
-      if @dealer_hand.include?("Ace") && (total(@dealer_hand) + 10).between?(18, 21) # Ace Check
-        break
+      break if @dealer_hand.include?("Ace") && (total(@dealer_hand) + 10).between?(18, 21) # Ace Check
+      @dealer_hand.push(random_card) # add new card to hand
+      puts "Dealer got a #{@dealer_hand.last}" # tell player the dealers card
+      if @dealer_hand.include?("Ace") && (total(@dealer_hand) + 10) < 18 # Ace Check
+        puts "Dealer is on #{total(@dealer_hand)} or #{total(@dealer_hand) + 10}"
       else
-        @dealer_hand.push(random_card) # add new card to hand
-        puts "Dealer got a #{@dealer_hand.last}" # tell player the dealers card
-        if @dealer_hand.include?("Ace") && (total(@dealer_hand) + 10) < 18 # Ace Check
-          puts "Dealer is on #{total(@dealer_hand)} or #{total(@dealer_hand) + 10}"
-        else
-          puts "Dealer is on #{total(@dealer_hand)}"
-        end
+        puts "Dealer is on #{total(@dealer_hand)}"
       end
-      line_space
     end
+    line_space
   end
-
+ 
   def final(player_total, dealer_total) # method to deal with end game. take in hand scores
     puts "Player has #{player_total}, dealer has #{dealer_total}" # tell the user what each player has
     if player_total > dealer_total && dealer_total < 21 # player more than dealer
@@ -287,7 +288,7 @@ class BlackJack
     @player_hand = [] # array for starting cards
     @dealer_hand = []
 
-    starting_hands
+    starting_hands # Draw first 2 card
 
     move # initiante players moves
     player_final_total = total(@player_hand) # capture player score
@@ -297,14 +298,14 @@ class BlackJack
       puts "You are bust with #{player_final_total}"
       puts "You now have #{@money}"
       line_space
-    elsif player_final_total == 21 && @player_hand.length == 2
-      end_game(bet, player_final_total)
+    elsif player_final_total == 21 && @player_hand.length == 2 # check to see if player starts with 21
+      end_game(bet, player_final_total) # close out game
     else
-      dealer
-      end_game(bet, player_final_total)
+      dealer #dealers move
+      end_game(bet, player_final_total) # close out game
     end
 
-    play_again  unless @money == 0
+    play_again  unless @money == 0 # give player option to play again unless their bust
   end
 
  # Bust Methods
