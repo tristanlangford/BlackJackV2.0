@@ -212,11 +212,11 @@ class BlackJack
         puts "You got a #{@player_hand.last}" # notify user of their new card
         break if total(@player_hand) > 21 # check to see if bust
         ace_check
-        else
-          puts "You have #{total(@player_hand)}"
-        end
+      else
+        puts "You have #{total(@player_hand)}"
+      end
       line_space
-      elsif input.downcase == "stick" # check for stick in any format
+      if input.downcase == "stick" # check for stick in any format
         break
       else
         puts "Please enter Hit or Stick" # error message
@@ -330,7 +330,7 @@ class BlackJack
 
  # Method for launching game
 
- def launch
+ def initialize
    puts "Welcome to BalckJack V2!"
    @money = 500
    loop do
@@ -347,4 +347,4 @@ class BlackJack
 
 end
 
-BlackJack.new.launch # run class & game
+BlackJack.new # run class & game
