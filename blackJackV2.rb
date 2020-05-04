@@ -347,4 +347,3 @@ class BlackJack
 
 end
 
-BlackJack.new # run class & game
