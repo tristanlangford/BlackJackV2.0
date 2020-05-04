@@ -10,13 +10,12 @@ RSpec.describe 'BlackJack' do
     end
   end
 
-  context "Settle bet" do
-    it 'settles bet correctly' do
-      bet = 50
-      multiplier = 2
-      result = BlackJack.new.settle_bet(bet, multiplier)
-      expect(result).to eq(600)
-    end
+  context "outcomes" do
+    it "outputs correct outcome" do
+      player = 20
+      dealer = 19
+      result = BlackJack.new.final(player, dealer)
+      expect(result). to eq(2)
+   end
   end
-
 end

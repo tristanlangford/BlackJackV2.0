@@ -347,3 +347,4 @@ class BlackJack
 
 end
 
+BlackJack.new
